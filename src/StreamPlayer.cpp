@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #include <iostream>
 #include "fmod.hpp"
-#include "common.h"
+#include "fmod/common.h"
 #include "fmod_errors.h"
+#include <thread>
 
 void FMODErrorCheck(FMOD_RESULT result)
 {
@@ -22,6 +23,13 @@ StreamPlayer::StreamPlayer()
 
 void StreamPlayer::playStream(const std::string &streamSource)
 {
+    // jrletosa handle termination
+    std::thread *t1= new std::thread(&StreamPlayer::playStream_Internal, this, streamSource);
+}
+
+
+void StreamPlayer::playStream_Internal(const std::string streamSource)
+{
     FMOD::System    *system = 0;
     FMOD::Sound     *sound = 0;
     FMOD::Channel   *channel = 0;
@@ -33,6 +41,7 @@ void StreamPlayer::playStream(const std::string &streamSource)
     int              tagindex = 0;
     char             tagstring[tagcount][128] = { 0 };
 
+    // jrletosa crashes
     //Common_Init(&extraDriverData);
 
     result= FMOD::System_Create(&system);
@@ -57,7 +66,6 @@ void StreamPlayer::playStream(const std::string &streamSource)
     //result = system->createSound("http://shoutmedia.abc.net.au:10426", FMOD_CREATESTREAM | FMOD_NONBLOCKING, 0, &sound);
     //result = system->createSound("http://195.55.74.224/cope/rockfm.mp3?GKID=7c175e00f02d11e4a49e00163e914f69&fspref=aHR0cDovL3BsYXllci5yb2NrZm0uZm0vc3dmL3ZpZGVvL3BsYXllci5zd2Y%3D", FMOD_CREATESTREAM | FMOD_NONBLOCKING, 0, &sound);
     result = system->createSound(streamSource.c_str(), FMOD_CREATESTREAM | FMOD_NONBLOCKING, 0, &sound);
-
     ERRCHECK(result);
 
     /*
@@ -212,5 +220,4 @@ void StreamPlayer::playStream(const std::string &streamSource)
     ERRCHECK(result);
 
     Common_Close();
-
 }

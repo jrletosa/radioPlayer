@@ -9,6 +9,10 @@ public:
     StreamPlayer();
 
     void playStream(const std::string &streamSource);
+
+private:
+
+    void playStream_Internal(const std::string streamSource);
 };
 
 #endif // STREAMPLAYER_H
