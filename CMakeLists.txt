@@ -11,7 +11,6 @@ include_directories(
 )
 
 set(SOURCE_FILES
-  #MainWindow.cpp
   ${SRC_LIST}
 )
 
@@ -22,6 +21,7 @@ set(INCLUDE_FILES
 
 set(MOC_HEADER_FILES
   MainWindow.h
+  AddRadioDialog.h
 )
 
 # this will run moc:

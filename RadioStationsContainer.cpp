@@ -17,7 +17,7 @@ void RadioStationsContainer::removeRadioStation(radioID &radioName)
 }
 
 
-void RadioStationsContainer::getStreamURL(radioID &radioName, std::string &streamURL)
+void RadioStationsContainer::getStreamURL(radioID &radioName, std::string &streamURL) const
 {
     streamURL.clear();
     StationsMap::const_iterator itMap= m_radioMap.find(radioName);
@@ -25,4 +25,10 @@ void RadioStationsContainer::getStreamURL(radioID &radioName, std::string &strea
     {
         streamURL= itMap->second;
     }
+}
+
+
+RadioStationsContainer::StationsMap RadioStationsContainer::getRadioMap() const
+{
+    return m_radioMap;
 }

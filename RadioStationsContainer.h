@@ -9,15 +9,18 @@ typedef const std::string radioID;
 class RadioStationsContainer
 {
 public:
+    typedef std::map<radioID, std::string> StationsMap;
+
     RadioStationsContainer();
 
     void addRadioStation(radioID &radioName, const std::string &streamSource);
     void removeRadioStation(radioID &radioName);
-    void getStreamURL(radioID &radioName, std::string &streamURL);
+    void getStreamURL(radioID &radioName, std::string &streamURL) const;
+
+    StationsMap getRadioMap() const;
 
 private:
 
-    typedef std::map<radioID, std::string> StationsMap;
     StationsMap m_radioMap;
 };
 
