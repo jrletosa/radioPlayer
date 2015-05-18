@@ -4,7 +4,6 @@
 #include "fmod.hpp"
 #include "fmod/common.h"
 #include "fmod_errors.h"
-#include <thread>
 
 void FMODErrorCheck(FMOD_RESULT result)
 {
@@ -17,14 +16,82 @@ void FMODErrorCheck(FMOD_RESULT result)
 
 
 StreamPlayer::StreamPlayer()
+    : m_currentState(STOP)
+    , m_playingThread(NULL)
 {
 }
 
 
-void StreamPlayer::playStream(const std::string &streamSource)
+StreamPlayer::~StreamPlayer()
 {
-    // jrletosa handle termination
-    std::thread *t1= new std::thread(&StreamPlayer::playStream_Internal, this, streamSource);
+    if (m_playingThread != NULL)
+    {
+        delete m_playingThread;
+    }
+}
+
+
+void StreamPlayer::play(const std::string &streamSource)
+{
+    switch (m_currentState)
+    {
+        case STOP:
+        {
+            changeState(PLAY);
+            m_playingThread= new std::thread(&StreamPlayer::playStream_Internal, this, streamSource);
+        }break;
+    }
+}
+
+
+void StreamPlayer::stop()
+{
+    switch (m_currentState)
+    {
+        case PLAY:
+        {
+            changeState(STOP);
+
+            if (m_playingThread != NULL)
+            {
+                m_playingThread->join();
+                delete m_playingThread;
+                m_playingThread= NULL;
+            }
+        }break;
+    }
+}
+
+void StreamPlayer::pause()
+{
+    switch (m_currentState)
+    {
+        case PLAY:
+        {
+            changeState(PAUSE);
+        }break;
+
+        case PAUSE:
+        {
+            changeState(PLAY);
+        }break;
+    }
+}
+
+
+void StreamPlayer::changeState(RadioPlayerState state)
+{
+    std::lock_guard<std::mutex> lock(m_currentStateMutex);
+
+    m_currentState= state;
+}
+
+
+StreamPlayer::RadioPlayerState StreamPlayer::getState() const
+{
+    std::lock_guard<std::mutex> lock(m_currentStateMutex);
+
+    return m_currentState;
 }
 
 
@@ -82,15 +149,15 @@ void StreamPlayer::playStream_Internal(const std::string streamSource)
 
         Common_Update();
 
-        if (Common_BtnPress(BTN_ACTION1))
+        if (channel != NULL)
         {
-            if (channel)
+            bool pause= (getState() == RadioPlayerState::PAUSE);
+            bool currentPause= pause;
+            result = channel->getPaused(&currentPause);
+            ERRCHECK(result);
+            if (pause != currentPause)
             {
-                bool paused = false;
-
-                result = channel->getPaused(&paused);
-                ERRCHECK(result);
-                result = channel->setPaused(!paused);
+                result = channel->setPaused(pause);
                 ERRCHECK(result);
             }
         }
@@ -185,7 +252,7 @@ void StreamPlayer::playStream_Internal(const std::string streamSource)
         }
 
         Common_Sleep(50);
-    } while (!Common_BtnPress(BTN_QUIT));
+    } while(!(getState() == RadioPlayerState::STOP));
 
     /*
         Stop the channel, then wait for it to finish opening before we release it.

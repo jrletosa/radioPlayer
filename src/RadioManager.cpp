@@ -3,6 +3,8 @@
 #include "MainWindow.h"
 
 RadioManager::RadioManager()
+    : m_listViewHandler(NULL)
+    , m_currentPlayer(NULL)
 {
 }
 
@@ -30,15 +32,39 @@ void RadioManager::removeRadio(radioID &radio)
 }
 
 
+void RadioManager::createStreamPlayer()
+{
+    if (m_currentPlayer != NULL)
+    {
+        delete m_currentPlayer;
+        m_currentPlayer= NULL;
+    }
+
+    m_currentPlayer= new StreamPlayer();
+}
+
+
 void RadioManager::playRadio(radioID &radio)
 {
     std::string stream;
     m_radioContainer.getStreamURL(radio, stream);
     if (!stream.empty())
     {
-        StreamPlayer player;
-        player.playStream(stream);
+        createStreamPlayer();
+        m_currentPlayer->play(stream);
     }
+}
+
+
+void RadioManager::pause()
+{
+    m_currentPlayer->pause();
+}
+
+
+void RadioManager::stop()
+{
+    m_currentPlayer->stop();
 }
 
 

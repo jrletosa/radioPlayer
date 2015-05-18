@@ -33,8 +33,9 @@ signals:
 
 public slots:
 
-    void radioSelected(QListWidgetItem *item);
-    void addRadioButtonPressed();
+    void newRadioButtonPressed();
+    void playButtonPressed();
+    void stopButtonPressed();
 
 };
 

@@ -22,26 +22,29 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_radioListContainer->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
 
-    QPushButton *addRadioButton= new QPushButton("Add Radio");
+    QPushButton *newRadioButton= new QPushButton("Add Radio");
 
     QVBoxLayout *firstColumn= new QVBoxLayout();
     firstColumn->addWidget(m_radioListContainer);
-    firstColumn->addWidget(addRadioButton);
+    firstColumn->addWidget(newRadioButton);
 
-    QVBoxLayout *buttonsLayout= new QVBoxLayout();
-    QPushButton *testButton= new QPushButton();
-    buttonsLayout->addWidget(testButton);
+    QHBoxLayout *controlButtonsLayout= new QHBoxLayout();
+    QPushButton *playButton= new QPushButton("Play");
+    QPushButton *stopButton= new QPushButton("Stop");
+    controlButtonsLayout->addWidget(playButton);
+    controlButtonsLayout->addWidget(stopButton);
 
     QHBoxLayout *horizontalLayout= new QHBoxLayout();
     horizontalLayout->addLayout(firstColumn);
-    horizontalLayout->addLayout(buttonsLayout);
+    horizontalLayout->addLayout(controlButtonsLayout);
 
     setCentralWidget(new QWidget());
     centralWidget()->setLayout(horizontalLayout);
 
     // connect buttons
-    connect(m_radioListContainer, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(radioSelected(QListWidgetItem *)));
-    connect(addRadioButton, SIGNAL(clicked()), this, SLOT(addRadioButtonPressed()));
+    connect(newRadioButton, SIGNAL(clicked()), this, SLOT(newRadioButtonPressed()));
+    connect(playButton, SIGNAL(clicked()), this, SLOT(playButtonPressed()));
+    connect(stopButton, SIGNAL(clicked()), this, SLOT(stopButtonPressed()));
 
     m_radioManager.setRadioListViewHandler(this);
     // add test radio
@@ -49,17 +52,22 @@ MainWindow::MainWindow(QWidget *parent) :
 }
 
 
-void MainWindow::radioSelected(QListWidgetItem *item)
-{
-    QString selectedText= item->text();
-    m_radioManager.playRadio(selectedText.toStdString());
-}
-
-
-void MainWindow::addRadioButtonPressed()
+void MainWindow::newRadioButtonPressed()
 {
     AddRadioDialog *dialog= new AddRadioDialog(&m_radioManager);
     dialog->show();
+}
+
+
+void MainWindow::playButtonPressed()
+{
+    m_radioManager.playRadio(m_radioListContainer->selectedItems().first()->text().toStdString());
+}
+
+
+void MainWindow::stopButtonPressed()
+{
+    m_radioManager.stop();
 }
 
 
@@ -70,7 +78,7 @@ void MainWindow::updateList(const RadioStationsContainer &container)
     RadioStationsContainer::StationsMap::const_iterator itMap= radioMap.begin();
     for (; itMap != radioMap.end(); ++itMap)
     {
-        QString radioName= QString::fromStdString(itMap->first);
+        QString radioName= QString::fromStdString(itMap->first);;
         m_radioListContainer->addItem(radioName);
     }
 }

@@ -4,6 +4,7 @@
 #include "RadioStationsContainer.h"
 
 class RadioListViewHandler;
+class StreamPlayer;
 
 class RadioListHandler
 {
@@ -21,9 +22,10 @@ public:
 
     void addRadio(radioID &radio, const std::string &streamSource);
     void removeRadio(radioID &radio);
-    void playRadio(radioID &radio);
 
-    // add pause, stop...
+    void playRadio(radioID &radio);
+    void pause();
+    void stop();
 
 protected:
 
@@ -31,8 +33,11 @@ protected:
 
 private:
 
+    void createStreamPlayer();
+
     RadioStationsContainer m_radioContainer;
     RadioListViewHandler *m_listViewHandler;
+    StreamPlayer *m_currentPlayer;
 };
 
 #endif // RADIOMANAGER_H
