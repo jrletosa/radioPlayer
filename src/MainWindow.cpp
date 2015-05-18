@@ -21,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent) :
                                       "}");
 
     m_radioListContainer->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
+    m_radioListContainer->setSelectionMode(QAbstractItemView::SingleSelection); // only one radio can be selected at a time
 
     QPushButton *newRadioButton= new QPushButton("Add Radio");
 
